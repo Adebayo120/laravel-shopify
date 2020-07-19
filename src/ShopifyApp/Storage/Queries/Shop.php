@@ -30,7 +30,7 @@ class Shop implements IShopQuery
      */
     public function __construct()
     {
-        $this->model = $this->getConfig('user_model');
+        $this->model = $this->getConfig('shop_model');
     }
 
     /**

@@ -38,7 +38,7 @@ class Shop implements ShopCommand
     public function __construct(ShopQuery $query)
     {
         $this->query = $query;
-        $this->model = $this->getConfig('user_model');
+        $this->model = $this->getConfig('shop_model');
     }
 
     /**
