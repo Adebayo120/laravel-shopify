@@ -20,7 +20,7 @@ trait ConfigAccessible
     {
         $this->config = array_merge(
             Config::get('shopify-app'),
-            ['shop_model' => Config::get('auth.shopifyShop')]
+            ['user_model' => Config::get('auth.providers.users.model')]
         );
 
         return $this->config[$key];

@@ -30,7 +30,7 @@ class Shop implements IShopQuery
      */
     public function __construct()
     {
-        $this->model = $this->getConfig('shop_model');
+        $this->model = $this->getConfig('user_model');
     }
 
     /**
@@ -61,7 +61,7 @@ class Shop implements IShopQuery
 
         return $result
             ->get()
-            ->where('name', $domain->toNative())
+            ->where('shop_name', $domain->toNative())
             ->first();
     }
 

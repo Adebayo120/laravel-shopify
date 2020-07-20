@@ -57,7 +57,7 @@ trait ShopModel
      */
     public function getDomain(): ShopDomainValue
     {
-        return new ShopDomain($this->name);
+        return new ShopDomain($this->shop_name);
     }
 
     /**
@@ -65,7 +65,7 @@ trait ShopModel
      */
     public function getToken(): AccessTokenValue
     {
-        return new AccessToken($this->password);
+        return new AccessToken($this->shop_password);
     }
 
     /**

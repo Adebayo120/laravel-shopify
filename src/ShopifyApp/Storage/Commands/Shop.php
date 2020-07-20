@@ -38,7 +38,7 @@ class Shop implements ShopCommand
     public function __construct(ShopQuery $query)
     {
         $this->query = $query;
-        $this->model = $this->getConfig('shop_model');
+        $this->model = $this->getConfig('user_model');
     }
 
     /**
@@ -48,9 +48,9 @@ class Shop implements ShopCommand
     {
         $model = $this->model;
         $shop = new $model();
-        $shop->name = $domain->toNative();
-        $shop->password = $token->isNull() ? '' : $token->toNative();
-        $shop->email = "shop@{$domain->toNative()}";
+        $shop->shop_name = $domain->toNative();
+        $shop->shop_password = $token->isNull() ? '' : $token->toNative();
+        $shop->shop_email = "shop@{$domain->toNative()}";
         $shop->save();
 
         return $shop->getId();
@@ -74,7 +74,7 @@ class Shop implements ShopCommand
     public function setAccessToken(ShopId $shopId, AccessTokenValue $token): bool
     {
         $shop = $this->getShop($shopId);
-        $shop->password = $token->toNative();
+        $shop->shop_password = $token->toNative();
 
         return $shop->save();
     }
@@ -85,7 +85,7 @@ class Shop implements ShopCommand
     public function clean(ShopId $shopId): bool
     {
         $shop = $this->getShop($shopId);
-        $shop->password = '';
+        $shop->shop_password = '';
         $shop->plan_id = null;
 
         return $shop->save();
