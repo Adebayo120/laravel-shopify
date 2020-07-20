@@ -26,7 +26,7 @@ abstract class BaseException extends Exception
     {
         if (!$this->getConfig('debug')) {
             // If not in debug mode... show view
-            return Redirect::route('login')->with('error', $this->getMessage());
+            return Redirect::route('shoplogin')->with('error', $this->getMessage());
         }
     }
 }

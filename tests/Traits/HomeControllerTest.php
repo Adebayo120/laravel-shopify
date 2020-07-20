@@ -22,7 +22,7 @@ class HomeControllerTest extends TestCase
         $shop = factory($this->model)->create();
         $this->shopSession->make($shop->getDomain());
 
-        $response = $this->get('/');
+        $response = $this->get('/shopIntegration');
         $response->assertStatus(200);
 
         $this->assertTrue(strpos($response->content(), "apiKey: ''") !== false);
@@ -37,7 +37,7 @@ class HomeControllerTest extends TestCase
         // Turn off AppBridge
         $this->app['config']->set('shopify-app.appbridge_enabled', false);
 
-        $response = $this->get('/');
+        $response = $this->get('/shopIntegration');
 
         $response->assertStatus(200);
         $this->assertFalse(strpos($response->content(), '@shopify'));

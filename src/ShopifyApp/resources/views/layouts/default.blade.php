@@ -25,7 +25,7 @@
                 var createApp = AppBridge.default;
                 var app = createApp({
                     apiKey: '{{ config('shopify-app.api_key') }}',
-                    shopOrigin: '{{ Auth::user()->name }}',
+                    shopOrigin: '{{ Auth::user()->shop_name }}',
                     forceRedirect: true,
                 });
             </script>

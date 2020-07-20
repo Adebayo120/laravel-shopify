@@ -70,7 +70,7 @@ trait BillingController
         );
 
         // Go to homepage of app
-        return Redirect::route('home')->with(
+        return Redirect::route('shophome')->with(
             $result ? 'success' : 'failure',
             'billing'
         );

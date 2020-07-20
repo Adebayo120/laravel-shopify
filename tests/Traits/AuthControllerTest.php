@@ -23,7 +23,7 @@ class AuthControllerTest extends TestCase
 
     public function testLoginRoute(): void
     {
-        $response = $this->get('/login');
+        $response = $this->get('/shopIntegrationLogin');
         $response->assertStatus(200);
     }
 

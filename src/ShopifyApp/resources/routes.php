@@ -21,11 +21,11 @@ Route::group(['prefix' => config('shopify-app.prefix'), 'middleware' => ['web']]
     */
 
     Route::get(
-        '/',
+        '/shopIntegration',
         'Osiset\ShopifyApp\Http\Controllers\HomeController@index'
     )
     ->middleware(['auth.shopify', 'billable'])
-    ->name('home');
+    ->name('shophome');
 
     /*
     |--------------------------------------------------------------------------
@@ -37,9 +37,9 @@ Route::group(['prefix' => config('shopify-app.prefix'), 'middleware' => ['web']]
     */
 
     Route::get(
-        '/login',
+        '/shopIntegrationLogin',
         'Osiset\ShopifyApp\Http\Controllers\AuthController@index'
-    )->name('login');
+    )->name('shoplogin');
 
     /*
     |--------------------------------------------------------------------------

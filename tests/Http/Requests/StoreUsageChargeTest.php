@@ -43,7 +43,7 @@ class StoreUsageChargeTest extends TestCase
         $data = [
             'price'       => '1.00',
             'description' => 'Testing',
-            'redirect'    => '/'
+            'redirect'    => '/shopIntegration'
         ];
         $signature = createHmac(['data' => $data, 'buildQuery' => true], $this->app['config']->get('shopify-app.api_secret'));
         $data['signature'] = $signature;

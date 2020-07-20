@@ -332,7 +332,7 @@ class AuthShopify
     {
         if ($domain->isNull()) {
             // We have no idea of knowing who this is, this should not happen
-            return Redirect::route('login');
+            return Redirect::route('shoplogin');
         }
 
         // Set the return-to path so we can redirect after successful authentication

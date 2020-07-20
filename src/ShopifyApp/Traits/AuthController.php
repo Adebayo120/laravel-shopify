@@ -49,7 +49,7 @@ trait AuthController
 
         if ($status === null) {
             // Go to login, something is wrong
-            return Redirect::route('login');
+            return Redirect::route('shoplogin');
         } elseif ($status === false) {
             // No code, redirect to auth URL
             return $this->oauthFailure($result->url, $shopDomain);
@@ -62,7 +62,7 @@ trait AuthController
             }
 
             // No return_to, go to home route
-            return Redirect::route('home');
+            return Redirect::route('shophome');
         }
     }
 
