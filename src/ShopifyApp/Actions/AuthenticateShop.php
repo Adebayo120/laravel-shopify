@@ -98,6 +98,8 @@ class AuthenticateShop
         $shopDomain = new ShopDomain($request->get('shop'));
         $code = $request->get('code');
 
+        session(['shop' => $request->get('shop_user')]);
+
         // Run the check
         $result = call_user_func($this->authorizeShopAction, $shopDomain, $code);
         if (!$result->completed) {

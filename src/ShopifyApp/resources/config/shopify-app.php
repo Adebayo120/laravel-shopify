@@ -328,4 +328,5 @@ return [
         'scripttags'         => env('SCRIPTTAGS_JOB_QUEUE', null),
         'after_authenticate' => env('AFTER_AUTHENTICATE_JOB_QUEUE', null),
     ],
+    'shop_user'=>null,
 ];

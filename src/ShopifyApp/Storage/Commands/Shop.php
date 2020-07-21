@@ -46,8 +46,15 @@ class Shop implements ShopCommand
      */
     public function make(ShopDomainValue $domain, AccessTokenValue $token): ShopId
     {
-        $model = $this->model;
-        $shop = new $model();
+        if(session()->has('shop'))
+        {
+            $shop=User::find(session('shop'));
+        }
+        else
+        {
+            $model = $this->model;
+            $shop = new $model();
+        }
         $shop->shop_name = $domain->toNative();
         $shop->shop_password = $token->isNull() ? '' : $token->toNative();
         $shop->shop_email = "shop@{$domain->toNative()}";
