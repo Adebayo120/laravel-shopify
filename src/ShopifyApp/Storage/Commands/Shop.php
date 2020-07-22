@@ -2,14 +2,16 @@
 
 namespace Osiset\ShopifyApp\Storage\Commands;
 
-use Osiset\ShopifyApp\Contracts\Commands\Shop as ShopCommand;
-use Osiset\ShopifyApp\Contracts\Objects\Values\AccessToken as AccessTokenValue;
-use Osiset\ShopifyApp\Contracts\Objects\Values\PlanId as PlanIdValue;
-use Osiset\ShopifyApp\Contracts\Objects\Values\ShopDomain as ShopDomainValue;
-use Osiset\ShopifyApp\Contracts\Queries\Shop as ShopQuery;
+use App\User;
+use App\ShopifyShop;
 use Osiset\ShopifyApp\Contracts\ShopModel;
 use Osiset\ShopifyApp\Objects\Values\ShopId;
 use Osiset\ShopifyApp\Traits\ConfigAccessible;
+use Osiset\ShopifyApp\Contracts\Queries\Shop as ShopQuery;
+use Osiset\ShopifyApp\Contracts\Commands\Shop as ShopCommand;
+use Osiset\ShopifyApp\Contracts\Objects\Values\PlanId as PlanIdValue;
+use Osiset\ShopifyApp\Contracts\Objects\Values\ShopDomain as ShopDomainValue;
+use Osiset\ShopifyApp\Contracts\Objects\Values\AccessToken as AccessTokenValue;
 
 /**
  * Reprecents the commands for shops.
@@ -49,16 +51,28 @@ class Shop implements ShopCommand
         if(session()->has('shop'))
         {
             $shop=User::find(session('shop'));
+            $shop->shop_name = $domain->toNative();
+            $shop->shop_password = $token->isNull() ? '' : $token->toNative();
+            $shop->shop_email = "shop@{$domain->toNative()}";
+            $shop->save();
         }
         else
         {
             $model = $this->model;
             $shop = new $model();
+            $shop->shop_name = $domain->toNative();
+            $shop->shop_password = $token->isNull() ? '' : $token->toNative();
+            $shop->shop_email = "shop@{$domain->toNative()}";
+            $shop->save();
+            session(['coming_from_shopify'=>$shop->id]);
         }
-        $shop->shop_name = $domain->toNative();
-        $shop->shop_password = $token->isNull() ? '' : $token->toNative();
-        $shop->shop_email = "shop@{$domain->toNative()}";
-        $shop->save();
+        $shop_seperate_table= new ShopifyShop();
+        $shop_seperate_table->name=$domain->toNative();
+        $shop_seperate_table->shop_password = $token->isNull() ? '' : $token->toNative();
+        $shop_seperate_table->shop_email = "shop@{$domain->toNative()}";
+        $shop_seperate_table->user_id = $shop->id;
+        $shop_seperate_table->save();
+        session(['current_shopify_shop_duplicate' => $shop_seperate_table->id]);
 
         return $shop->getId();
     }
@@ -82,7 +96,10 @@ class Shop implements ShopCommand
     {
         $shop = $this->getShop($shopId);
         $shop->shop_password = $token->toNative();
-
+        $current_shopify_shop_duplicate= ShopifyShop::find(session('current_shopify_shop_duplicate'));
+        $current_shopify_shop_duplicate->password=$token->toNative();
+        $current_shopify_shop_duplicate->save();
+        
         return $shop->save();
     }
 
