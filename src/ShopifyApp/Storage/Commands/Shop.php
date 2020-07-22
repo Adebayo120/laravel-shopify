@@ -55,6 +55,7 @@ class Shop implements ShopCommand
             $shop->shop_password = $token->isNull() ? '' : $token->toNative();
             $shop->shop_email = "shop@{$domain->toNative()}";
             $shop->save();
+            session()->forget('shop');
         }
         else
         {
@@ -99,6 +100,7 @@ class Shop implements ShopCommand
         $current_shopify_shop_duplicate= ShopifyShop::find(session('current_shopify_shop_duplicate'));
         $current_shopify_shop_duplicate->password=$token->toNative();
         $current_shopify_shop_duplicate->save();
+        session()->forget('current_shopify_shop_duplicate');
         
         return $shop->save();
     }
