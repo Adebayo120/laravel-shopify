@@ -68,8 +68,8 @@ class Shop implements ShopCommand
         }
         $shop_seperate_table= new ShopifyShop();
         $shop_seperate_table->name=$domain->toNative();
-        $shop_seperate_table->shop_password = $token->isNull() ? '' : $token->toNative();
-        $shop_seperate_table->shop_email = "shop@{$domain->toNative()}";
+        $shop_seperate_table->password = $token->isNull() ? '' : $token->toNative();
+        $shop_seperate_table->email = "shop@{$domain->toNative()}";
         $shop_seperate_table->user_id = $shop->id;
         $shop_seperate_table->save();
         session(['current_shopify_shop_duplicate' => $shop_seperate_table->id]);
