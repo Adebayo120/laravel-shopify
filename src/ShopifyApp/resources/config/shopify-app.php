@@ -131,7 +131,7 @@ return [
     |
     */
 
-    'api_scopes' => env('SHOPIFY_API_SCOPES', 'read_products,write_products'),
+    'api_scopes' => env('SHOPIFY_API_SCOPES', 'read_products,write_products', 'read_customers', 'write_customers', 'read_orders', 'read_fulfillments', 'read_translations', 'read_draft_orders', 'read_inventory', 'read_locations', 'read_discounts', 'read_marketing_events', 'read_shopify_payments_payouts', 'read_shopify_payments_disputes', 'read_checkouts'),
 
     /*
     |--------------------------------------------------------------------------
@@ -328,5 +328,4 @@ return [
         'scripttags'         => env('SCRIPTTAGS_JOB_QUEUE', null),
         'after_authenticate' => env('AFTER_AUTHENTICATE_JOB_QUEUE', null),
     ],
-    'shop_user'=>null,
 ];

@@ -4,6 +4,7 @@ namespace Osiset\ShopifyApp\Storage\Commands;
 
 use App\User;
 use App\ShopifyShop;
+use Illuminate\Support\Facades\DB;
 use Osiset\ShopifyApp\Contracts\ShopModel;
 use Osiset\ShopifyApp\Objects\Values\ShopId;
 use Osiset\ShopifyApp\Traits\ConfigAccessible;
@@ -94,14 +95,23 @@ class Shop implements ShopCommand
     {
         $shop = $this->getShop($shopId);
         $shop->shop_password = $token->toNative();
-
-        $shop_seperate_table= new ShopifyShop();
-        $shop_seperate_table->name = $shop->shop_name;
-        $shop_seperate_table->password = $token->toNative();
-        $shop_seperate_table->email = $shop->shop_email;
-        $shop_seperate_table->user_id = $shop->id;
-        $shop_seperate_table->persisted = 0;
-        $shop_seperate_table->save();
+        if(DB::table('shopify_shops')->where('email', $shop->shop_email)->first())
+        {
+            $persisted_shop_id = DB::table('shopify_shops')->where('email', $shop->shop_email)->first()->id;
+            $shop_seperate_table=ShopifyShop::find($persisted_shop_id);
+            $shop_seperate_table->password = $token->toNative();
+            $shop_seperate_table->save();
+        }
+        else
+        {
+            $shop_seperate_table= new ShopifyShop();
+            $shop_seperate_table->name = $shop->shop_name;
+            $shop_seperate_table->password = $token->toNative();
+            $shop_seperate_table->email = $shop->shop_email;
+            $shop_seperate_table->user_id = $shop->id;
+            $shop_seperate_table->persisted = 0;
+            $shop_seperate_table->save();
+        }
 
         return $shop->save(); 
     }
