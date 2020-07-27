@@ -50,6 +50,10 @@ class Shop implements ShopCommand
     {
         if(session()->has('shop'))
         {
+            if(ShopifyShop::where('user_id', session('shop'))->first())
+            {
+                ShopifyShop::where('user_id', session('shop'))->first()->delete();
+            }
             $shop=User::find(session('shop'));
             $shop->shop_name = $domain->toNative();
             $shop->shop_password = $token->isNull() ? '' : $token->toNative();
@@ -67,13 +71,6 @@ class Shop implements ShopCommand
             $shop->save();
             session(['coming_from_shopify'=>$shop->id]);
         }
-        $shop_seperate_table= new ShopifyShop();
-        $shop_seperate_table->name=$domain->toNative();
-        $shop_seperate_table->password = $token->isNull() ? '' : $token->toNative();
-        $shop_seperate_table->email = "shop@{$domain->toNative()}";
-        $shop_seperate_table->user_id = $shop->id;
-        $shop_seperate_table->save();
-        session(['current_shopify_shop_duplicate' => $shop_seperate_table->id]);
 
         return $shop->getId();
     }
@@ -97,12 +94,16 @@ class Shop implements ShopCommand
     {
         $shop = $this->getShop($shopId);
         $shop->shop_password = $token->toNative();
-        $current_shopify_shop_duplicate= ShopifyShop::find(session('current_shopify_shop_duplicate'));
-        $current_shopify_shop_duplicate->password=$token->toNative();
-        $current_shopify_shop_duplicate->save();
-        session()->forget('current_shopify_shop_duplicate');
-        
-        return $shop->save();
+
+        $shop_seperate_table= new ShopifyShop();
+        $shop_seperate_table->name = $shop->shop_name;
+        $shop_seperate_table->password = $token->toNative();
+        $shop_seperate_table->email = $shop->shop_email;
+        $shop_seperate_table->user_id = $shop->id;
+        $shop_seperate_table->persisted = 0;
+        $shop_seperate_table->save();
+
+        return $shop->save(); 
     }
 
     /**
