@@ -2,6 +2,7 @@
 
 namespace Osiset\ShopifyApp\Messaging\Jobs;
 
+use App\ShopifyShop;
 use stdClass;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -76,7 +77,7 @@ class AppUninstalledJob implements ShouldQueue
         $shopCommand->clean($shopId);
 
         // Soft delete the shop.
-        $shopCommand->softDelete($shopId);
+        ShopifyShop::where('user_id', $shopId)->delete();
 
         return true;
     }
