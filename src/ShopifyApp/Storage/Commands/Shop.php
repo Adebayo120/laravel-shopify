@@ -53,7 +53,7 @@ class Shop implements ShopCommand
         {
             if(ShopifyShop::where('user_id', session('shop'))->first())
             {
-                ShopifyShop::where('user_id', session('shop'))->delete();
+                ShopifyShop::where('user_id', session('shop'))->forceDelete();
             }
             $shop=User::find(session('shop'));
             $shop->shop_name = $domain->toNative();
@@ -72,7 +72,6 @@ class Shop implements ShopCommand
             $shop->save();
             session(['coming_from_shopify'=>$shop->id]);
         }
-
         return $shop->getId();
     }
 
