@@ -3,9 +3,9 @@
 namespace Osiset\ShopifyApp\Traits;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Response as ResponseResponse;
 use Illuminate\Support\Facades\Response;
 use Osiset\ShopifyApp\Objects\Values\ShopDomain;
+use Illuminate\Http\Response as ResponseResponse;
 
 /**
  * Responsible for handling incoming webhook requests.
@@ -24,14 +24,25 @@ trait WebhookController
      */
     public function handle(string $type, Request $request): ResponseResponse
     {
+
         // Get the job class and dispatch
         $jobClass = $this->getConfig('job_namespace').str_replace('-', '', ucwords($type, '-')).'Job';
         $jobData = json_decode($request->getContent());
-
-        $jobClass::dispatch(
-            new ShopDomain($request->header('x-shopify-shop-domain')),
-            $jobData
-        );
+        if( $type == 'carts-update' || $type == 'carts-create' || $type == 'checkouts-create' || $type == 'checkouts-update' )
+        {
+            $jobClass::dispatch(
+                new ShopDomain($request->header('x-shopify-shop-domain')),
+                $jobData,
+                $_SERVER['REMOTE_ADDR']
+            );
+        }
+        else
+        {
+            $jobClass::dispatch(
+                new ShopDomain($request->header('x-shopify-shop-domain')),
+                $jobData
+            );
+        }
 
         return Response::make('', 201);
     }
