@@ -53,6 +53,9 @@ class Shop implements ShopCommand
         {
             if(ShopifyShop::where('user_id', session('shop'))->first())
             {
+                $former_shop = ShopifyShop::where('user_id', session('shop'))->first();
+                $user = $former_shop->user;
+                $user->api()->rest('DELETE', '/admin/api/api_permissions/current.json');
                 ShopifyShop::where('user_id', session('shop'))->forceDelete();
             }
             $shop=User::find(session('shop'));
