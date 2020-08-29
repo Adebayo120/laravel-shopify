@@ -2,6 +2,7 @@
 
 namespace Osiset\ShopifyApp\Traits;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Illuminate\Http\RedirectResponse;
@@ -43,7 +44,10 @@ trait AuthController
     {
         // Get the shop domain
         $shopDomain = new ShopDomain($request->get('shop'));
-
+        if(!Str::endsWith($request->get('shop'), '.myshopify.com'))
+        {
+            return back()->with('error', 'Invalid Shop Input');
+        }
         // Run the action, returns [result object, result status]
         list($result, $status) = $authenticateShop($request);
 
