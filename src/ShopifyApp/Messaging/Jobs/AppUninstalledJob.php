@@ -77,7 +77,7 @@ class AppUninstalledJob implements ShouldQueue
         $shopCommand->clean($shopId);
 
         // Soft delete the shop.
-        ShopifyShop::where('user_id', $shop->id)->forceDelete();
+        ShopifyShop::where('user_id', $shop->id)->delete();
 
         return true;
     }

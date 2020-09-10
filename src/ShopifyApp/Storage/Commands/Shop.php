@@ -51,14 +51,11 @@ class Shop implements ShopCommand
     {
         if(session()->has('shop'))
         {
-            if(ShopifyShop::where('user_id', session('shop'))->first())
+            if(ShopifyShop::where('user_id', session('shop'))->trashed())
             {
-                $former_shop = ShopifyShop::where('user_id', session('shop'))->first();
-                $user = $former_shop->user;
-                $user->api()->rest('DELETE', '/admin/api/api_permissions/current.json');
-                ShopifyShop::where('user_id', session('shop'))->forceDelete();
+                ShopifyShop::where('user_id', session('shop'))->restore();
             }
-            $shop=User::find(session('shop'));
+            $shop = User::find(session('shop'));
             $shop->shop_name = $domain->toNative();
             $shop->shop_password = $token->isNull() ? '' : $token->toNative();
             $shop->shop_email = "shop@{$domain->toNative()}";
@@ -73,7 +70,7 @@ class Shop implements ShopCommand
             $shop->shop_password = $token->isNull() ? '' : $token->toNative();
             $shop->shop_email = "shop@{$domain->toNative()}";
             $shop->save();
-            session(['coming_from_shopify'=>$shop->id]);
+            session( [ 'coming_from_shopify'=>$shop->id ] );
         }
         return $shop->getId();
     }

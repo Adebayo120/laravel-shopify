@@ -2,6 +2,7 @@
 
 namespace Osiset\ShopifyApp\Traits;
 
+use App\ShopifyShop;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
@@ -47,6 +48,19 @@ trait AuthController
         if(!Str::endsWith($request->get('shop'), '.myshopify.com'))
         {
             return back()->with('error', 'Invalid Shop Input');
+        }
+        $shop_on_sendmunk = ShopifyShop::withTrashed()->where('name', $request->get('shop'))->first();
+        if($shop_on_sendmunk)
+        {
+            if($shop_on_sendmunk->user_id != session('shop'))
+            {
+                return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
+            }
+            
+            if(!$shop_on_sendmunk->trashed())
+            {
+                return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
+            }
         }
         // Run the action, returns [result object, result status]
         list($result, $status) = $authenticateShop($request);
