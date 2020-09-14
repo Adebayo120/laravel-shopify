@@ -34,14 +34,14 @@ trait WebhookController
                 new ShopDomain($request->header('x-shopify-shop-domain')),
                 $jobData,
                 $_SERVER['REMOTE_ADDR']
-            );
+            )->onQueue('shopify');
         }
         else
         {
             $jobClass::dispatch(
                 new ShopDomain($request->header('x-shopify-shop-domain')),
                 $jobData
-            );
+            )->onQueue('shopify');
         }
 
         return Response::make('', 201);
