@@ -51,9 +51,13 @@ class Shop implements ShopCommand
     {
         if(session()->has('shop'))
         {
-            if(ShopifyShop::where('user_id', session('shop'))->trashed())
+            $custom_shop_in_app = ShopifyShop::withTrashed()->where('user_id', session('shop'))->first();
+            if($custom_shop_in_app)
             {
-                ShopifyShop::where('user_id', session('shop'))->restore();
+                if($custom_shop_in_app->trashed())
+                {
+                    $custom_shop_in_app->restore();
+                }
             }
             $shop = User::find(session('shop'));
             $shop->shop_name = $domain->toNative();
@@ -94,12 +98,11 @@ class Shop implements ShopCommand
     {
         $shop = $this->getShop($shopId);
         $shop->shop_password = $token->toNative();
-        if(DB::table('shopify_shops')->where('email', $shop->shop_email)->first())
+        $persisted_shop_seperate_table =  ShopifyShop::where('email', $shop->shop_email)->first();
+        if($persisted_shop_seperate_table)
         {
-            $persisted_shop_id = DB::table('shopify_shops')->where('email', $shop->shop_email)->first()->id;
-            $shop_seperate_table=ShopifyShop::find($persisted_shop_id);
-            $shop_seperate_table->password = $token->toNative();
-            $shop_seperate_table->save();
+            $persisted_shop_seperate_table->password = $token->toNative();
+            $persisted_shop_seperate_table->save();
         }
         else
         {
