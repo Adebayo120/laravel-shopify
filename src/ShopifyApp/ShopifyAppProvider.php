@@ -12,6 +12,7 @@ use Osiset\ShopifyApp\Http\Middleware\Billable;
 use Osiset\ShopifyApp\Http\Middleware\AuthProxy;
 use Osiset\ShopifyApp\Http\Middleware\AuthShopify;
 use Osiset\ShopifyApp\Http\Middleware\AuthWebhook;
+use Osiset\ShopifyApp\Http\Middleware\SameSiteNone;
 use Osiset\ShopifyApp\Console\WebhookJobMakeCommand;
 use Osiset\ShopifyApp\Messaging\Jobs\WebhookInstaller;
 use Osiset\ShopifyApp\Contracts\ApiHelper as IApiHelper;
@@ -356,5 +357,6 @@ class ShopifyAppProvider extends ServiceProvider
         $this->app['router']->aliasMiddleware('auth.webhook', AuthWebhook::class);
         $this->app['router']->aliasMiddleware('auth.proxy', AuthProxy::class);
         $this->app['router']->aliasMiddleware('billable', Billable::class);
+        $this->app['router']->aliasMiddleware('samesitenone', SameSiteNone::class);
     }
 }

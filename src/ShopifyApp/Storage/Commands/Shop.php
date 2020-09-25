@@ -98,9 +98,11 @@ class Shop implements ShopCommand
     {
         $shop = $this->getShop($shopId);
         $shop->shop_password = $token->toNative();
-        $persisted_shop_seperate_table =  ShopifyShop::where('email', $shop->shop_email)->first();
+        $persisted_shop_seperate_table =  ShopifyShop::withTrashed()->where('email', $shop->shop_email)->first();
         if($persisted_shop_seperate_table)
         {
+            $persisted_shop_seperate_table->user_id = $shop->id;
+            $persisted_shop_seperate_table->deleted_at = null;
             $persisted_shop_seperate_table->password = $token->toNative();
             $persisted_shop_seperate_table->save();
         }

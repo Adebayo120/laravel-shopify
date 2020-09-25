@@ -44,22 +44,25 @@ trait AuthController
     public function authenticate(Request $request, AuthenticateShop $authenticateShop)
     {
         // Get the shop domain
-        $shopDomain = new ShopDomain($request->get('shop'));
-        if(!Str::endsWith($request->get('shop'), '.myshopify.com'))
+        if($request->get('shop'))
         {
-            return back()->with('error', 'Invalid Shop Input');
-        }
-        $shop_on_sendmunk = ShopifyShop::withTrashed()->where('name', $request->get('shop'))->first();
-        if($shop_on_sendmunk)
-        {
-            if($shop_on_sendmunk->user_id != session('shop'))
+            $shopDomain = new ShopDomain($request->get('shop'));
+            if(!Str::endsWith($request->get('shop'), '.myshopify.com'))
             {
-                return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
+                return back()->with('error', 'Invalid Shop Input');
             }
-            
-            if(!$shop_on_sendmunk->trashed())
+            $shop_on_sendmunk = ShopifyShop::withTrashed()->where('name', $request->get('shop'))->first();
+            if($shop_on_sendmunk)
             {
-                return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
+                if($shop_on_sendmunk->user_id != session('shop'))
+                {
+                    return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
+                }
+                
+                if(!$shop_on_sendmunk->trashed())
+                {
+                    return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
+                }
             }
         }
         // Run the action, returns [result object, result status]
