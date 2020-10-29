@@ -1,7 +1,7 @@
 <?php
 
 namespace Osiset\ShopifyApp\Storage\Models;
-
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Osiset\ShopifyApp\Objects\Enums\PlanInterval;
@@ -123,5 +123,15 @@ class Plan extends Model
     public function isTest(): bool
     {
         return (bool) $this->test;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    public function users ()
+    {
+        return $this->hasMany(User::class, 'plan_id');
     }
 }

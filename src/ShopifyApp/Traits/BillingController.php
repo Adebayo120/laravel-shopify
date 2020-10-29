@@ -70,9 +70,9 @@ trait BillingController
         );
 
         // Go to homepage of app
-        return Redirect::route('shophome')->with(
-            $result ? 'success' : 'failure',
-            'billing'
+        return Redirect::to('settings#/billing')->with(
+            $result ? 'status' : 'error',
+            $result ? 'Plan Upgraded Successfully' : ' Oops An Error Occured'
         );
     }
 
