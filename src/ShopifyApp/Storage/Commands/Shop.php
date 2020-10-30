@@ -13,6 +13,7 @@ use Osiset\ShopifyApp\Contracts\Commands\Shop as ShopCommand;
 use Osiset\ShopifyApp\Contracts\Objects\Values\PlanId as PlanIdValue;
 use Osiset\ShopifyApp\Contracts\Objects\Values\ShopDomain as ShopDomainValue;
 use Osiset\ShopifyApp\Contracts\Objects\Values\AccessToken as AccessTokenValue;
+use Osiset\ShopifyApp\Storage\Models\Plan;
 
 /**
  * Reprecents the commands for shops.
@@ -87,6 +88,7 @@ class Shop implements ShopCommand
         $shop = $this->getShop($shopId);
         $shop->plan_id = $planId->toNative();
         $shop->shopify_freemium = false;
+        $shop->plan_type = Plan::find( $planId->toNative() )->name;
 
         return $shop->save();
     }
