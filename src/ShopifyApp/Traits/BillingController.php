@@ -2,6 +2,8 @@
 
 namespace Osiset\ShopifyApp\Traits;
 
+use App\SmsCredit;
+use App\SmsCreditHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Illuminate\Http\RedirectResponse;
@@ -103,9 +105,43 @@ trait BillingController
             $ucd
         );
 
+        $this->update_software_on_successfull_credit_purchase();
+
         // All done, return with success
         return isset($validated['redirect']) ?
-            Redirect::to($validated['redirect'])->with('success', 'usage_charge') :
-            Redirect::back()->with('success', 'usage_charge');
+            Redirect::to($validated['redirect'])->with('status', 'Sms Credit Purchase was Successfully') :
+            Redirect::back()->with('status', 'Sms Credit Purchase was Successfully');
+    }
+
+    public function update_software_on_successfull_credit_purchase ()
+    {
+        $data = session('data');
+        $user = session('user');
+        // store sms credit history
+        $credit_history= new SmsCreditHistory();
+        $credit_history->credit = $data['sms_credit'];
+        $credit_history->amount = $data['sms_credit_amount'];
+        $credit_history->user_id = $user->id;
+        $credit_history->save();
+        // Check if user already has credit
+        $availableCredit = SmsCredit::where( 'user_id', '=' ,$user->id )->first();
+        if ($availableCredit) {
+            $availableCredit->static_credit = $data['sms_credit'];
+            $availableCredit->decreasable_credit = $availableCredit->decreasable_credit + $data['sms_credit'];
+            $availableCredit->static_amount = $availableCredit->decreasable_amount + $data['sms_credit_amount'];
+            $availableCredit->decreasable_amount = $availableCredit->decreasable_amount + $data['sms_credit_amount'];
+            $availableCredit->save();
+        }else {
+            // User hasn't purchased SMS Credit Before
+            $smsCreditLoad = new SmsCredit();
+            $smsCreditLoad->static_credit = $data['sms_credit'];
+            $smsCreditLoad->decreasable_credit = $data['sms_credit'];
+            $smsCreditLoad->static_amount = $data['sms_credit_amount'];
+            $smsCreditLoad->decreasable_amount = $data['sms_credit_amount'];
+            $smsCreditLoad->user_id = $user->id;
+            $smsCreditLoad->save();
+        }
+        $user->exhaust_sms_credit= 0;
+        $user->save();
     }
 }
