@@ -2,6 +2,7 @@
 
 namespace Osiset\ShopifyApp\Storage\Models;
 
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Osiset\ShopifyApp\Objects\Values\ChargeId;
@@ -225,5 +226,15 @@ class Charge extends Model
     public function isOngoing(): bool
     {
         return $this->isActive() && !$this->isCancelled();
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    public function user ()
+    {
+        return $this->belongsTo(User::class);
     }
 }
