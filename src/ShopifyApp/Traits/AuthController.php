@@ -2,6 +2,7 @@
 
 namespace Osiset\ShopifyApp\Traits;
 
+use App\User;
 use App\ShopifyShop;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -44,9 +45,23 @@ trait AuthController
     public function authenticate(Request $request, AuthenticateShop $authenticateShop)
     {
         // Get the shop domain
+        $shopDomain = new ShopDomain($request->get('shop'));
         if($request->get('shop'))
         {
-            $shopDomain = new ShopDomain($request->get('shop'));
+            $existing_user = User::where('shop_name', $request->shop)->first();
+            if( $existing_user->id != $request->shop_user )
+            {
+                if( $existing_user->email )
+                {
+                    $existing_user->shop_name = null;
+                    $existing_user->shop_email = null;
+                    $existing_user->save();
+                }
+                else
+                {
+                    $existing_user->forceDelete();
+                }
+            }
             if(!Str::endsWith($request->get('shop'), '.myshopify.com'))
             {
                 return back()->with('error', 'Invalid Shop Input');
