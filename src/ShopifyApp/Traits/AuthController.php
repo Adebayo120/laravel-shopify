@@ -49,7 +49,7 @@ trait AuthController
         if($request->get('shop'))
         {
             $existing_user = User::where('shop_name', $request->shop)->first();
-            if( $existing_user->id != $request->shop_user )
+            if( $existing_user && $existing_user->id != $request->shop_user )
             {
                 if( $existing_user->email )
                 {
