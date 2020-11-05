@@ -46,47 +46,48 @@ trait AuthController
     {
         // Get the shop domain
         $shopDomain = new ShopDomain($request->get('shop'));
-        $user = User::where( 'shop_name', $request->get('shop') )->first();
         if( $request->get('shop_user') )
         {
-            session( [ 'shop' => $request->get( 'shop_user' ) ] );
-            $existing_user = $user;
-            if( $existing_user && $existing_user->id != $request->shop_user )
-            {
-                if( $existing_user->email )
-                {
-                    $existing_user->shop_name = null;
-                    $existing_user->shop_email = null;
-                    $existing_user->save();
-                }
-                else
-                {
-                    $existing_user->forceDelete();
-                }
-            }
-
+            //is the typed in shop correct
             if( !Str::endsWith( $request->get('shop'), '.myshopify.com' ) ) 
             {
                 return back()->with('error', 'Invalid Shop Input');
             }
-            $shop_on_sendmunk = ShopifyShop::withTrashed()->where('name', $request->get('shop'))->first();
-            if( $shop_on_sendmunk )
+            //is it already installed for one of software users
+            $shop_on_software = ShopifyShop::withTrashed()->where('name', $request->get('shop'))->first();
+            if( $shop_on_software )
             {
-                if( $shop_on_sendmunk->user_id != session('shop') )
+                if( $shop_on_software->user_id != session('shop') )
                 {
                     return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
                 }
                 
-                if( !$shop_on_sendmunk->trashed() )
+                if( !$shop_on_software->trashed() )
                 {
                     return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
                 }
             }
-        }
-        else
-        {
-            $user->first_time_installation_from_software = 0;
-            $user->save();
+            else{
+                //has someone tried installing before but didn't finish up
+                $existing_user = User::where( 'shop_name', $request->get('shop') )->whereNull('shop_password')->first();
+                // is it same percon or another
+                if( $existing_user && $existing_user->id != $request->shop_user )
+                {
+                    //did the person tried installing from software
+                    if( $existing_user->email )
+                    {
+                        $existing_user->shop_name = null;
+                        $existing_user->shop_email = null;
+                        $existing_user->save();
+                    }
+                    // or the person tried installing from shopify plartform
+                    else
+                    {
+                        $existing_user->forceDelete();
+                    }
+                }
+            }
+            session( [ 'shop' => $request->get( 'shop_user' ) ] );
         }
         // Run the action, returns [result object, result status]
         list($result, $status) = $authenticateShop($request);
@@ -99,10 +100,11 @@ trait AuthController
             return $this->oauthFailure($result->url, $shopDomain);
         } else {
             // Everything's good... determine if we need to redirect back somewhere
-            if(  $user->first_time_installation_from_software )
+            if(  session()->has('shop') )
             {
                 session()->flash( 'status', $request->get('shop').' was Successfully Integrated Into Your Account' );
                 session( [ 'return_to' => url('integration') ] );
+                session()->forget('shop');
             }
             $return_to = Session::get('return_to');
             if ($return_to) {
@@ -127,7 +129,18 @@ trait AuthController
     {
         // Setup
         session()->forget('shop');
-        $shopDomain = new ShopDomain($request->get('shop'));
+        $user_that_tried_installing_shop = User::where( 'shop_name', $request->get('shop') )
+                                ->whereNull('shop_password')
+                                ->whereNotNull('email')
+                                ->first();
+        if( $user_that_tried_installing_shop )
+        {
+            $user_that_tried_installing_shop->shop_name = null;
+            $user_that_tried_installing_shop->shop_email = null;
+            $user_that_tried_installing_shop->save();
+        }
+
+        $shopDomain = new ShopDomain( $request->get( 'shop' ) );
         $result = $authShop($shopDomain, null);
 
         // Redirect

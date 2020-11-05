@@ -4,7 +4,6 @@ namespace Osiset\ShopifyApp\Storage\Commands;
 
 use App\User;
 use App\ShopifyShop;
-use Illuminate\Support\Facades\DB;
 use Osiset\ShopifyApp\Contracts\ShopModel;
 use Osiset\ShopifyApp\Objects\Values\ShopId;
 use Osiset\ShopifyApp\Traits\ConfigAccessible;
@@ -64,9 +63,7 @@ class Shop implements ShopCommand
             $shop->shop_name = $domain->toNative();
             $shop->shop_password = $token->isNull() ? '' : $token->toNative();
             $shop->shop_email = "shop@{$domain->toNative()}";
-            $shop->first_time_installation_from_software = 1;
             $shop->save();
-            session()->forget('shop');
         }
         else
         {
