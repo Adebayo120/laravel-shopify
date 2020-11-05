@@ -46,9 +46,11 @@ trait AuthController
     {
         // Get the shop domain
         $shopDomain = new ShopDomain($request->get('shop'));
-        if($request->get('shop'))
+        $user = User::where( 'shop_name', $request->get('shop') )->first();
+        if( $request->get('shop_user') )
         {
-            $existing_user = User::where('shop_name', $request->shop)->first();
+            session( [ 'shop' => $request->get( 'shop_user' ) ] );
+            $existing_user = $user;
             if( $existing_user && $existing_user->id != $request->shop_user )
             {
                 if( $existing_user->email )
@@ -62,23 +64,29 @@ trait AuthController
                     $existing_user->forceDelete();
                 }
             }
-            if(!Str::endsWith($request->get('shop'), '.myshopify.com'))
+
+            if( !Str::endsWith( $request->get('shop'), '.myshopify.com' ) ) 
             {
                 return back()->with('error', 'Invalid Shop Input');
             }
             $shop_on_sendmunk = ShopifyShop::withTrashed()->where('name', $request->get('shop'))->first();
-            if($shop_on_sendmunk)
+            if( $shop_on_sendmunk )
             {
-                if($shop_on_sendmunk->user_id != session('shop'))
+                if( $shop_on_sendmunk->user_id != session('shop') )
                 {
                     return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
                 }
                 
-                if(!$shop_on_sendmunk->trashed())
+                if( !$shop_on_sendmunk->trashed() )
                 {
                     return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
                 }
             }
+        }
+        else
+        {
+            $user->first_time_installation_from_software = 0;
+            $user->save();
         }
         // Run the action, returns [result object, result status]
         list($result, $status) = $authenticateShop($request);
@@ -91,6 +99,11 @@ trait AuthController
             return $this->oauthFailure($result->url, $shopDomain);
         } else {
             // Everything's good... determine if we need to redirect back somewhere
+            if(  $user->first_time_installation_from_software )
+            {
+                session()->flash( 'status', $request->get('shop').' was Successfully Integrated Into Your Account' );
+                session( [ 'return_to' => url('integration') ] );
+            }
             $return_to = Session::get('return_to');
             if ($return_to) {
                 Session::forget('return_to');
@@ -113,6 +126,7 @@ trait AuthController
     public function oauth(Request $request, AuthorizeShop $authShop): ViewView
     {
         // Setup
+        session()->forget('shop');
         $shopDomain = new ShopDomain($request->get('shop'));
         $result = $authShop($shopDomain, null);
 

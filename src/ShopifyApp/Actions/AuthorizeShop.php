@@ -75,6 +75,7 @@ class AuthorizeShop
             $this->shopCommand->make($shopDomain, new NullAccessToken(null));
             $shop = $this->shopQuery->getByDomain($shopDomain);
         }
+
         $apiHelper = $shop->apiHelper();
 
         // Return data
@@ -86,6 +87,7 @@ class AuthorizeShop
         // Start the process
         if (empty($code)) {
             // Access/grant mode
+            //check if user shop_password is filled
             $grantMode = $shop->hasOfflineAccess() ?
                 AuthMode::fromNative($this->getConfig('api_grant_mode')) :
                 AuthMode::OFFLINE();

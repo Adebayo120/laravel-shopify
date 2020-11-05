@@ -50,7 +50,7 @@ class Shop implements ShopCommand
      */
     public function make(ShopDomainValue $domain, AccessTokenValue $token): ShopId
     {
-        if(session()->has('shop'))
+        if( session()->has('shop') )
         {
             $custom_shop_in_app = ShopifyShop::withTrashed()->where('user_id', session('shop'))->first();
             if($custom_shop_in_app)
@@ -64,6 +64,7 @@ class Shop implements ShopCommand
             $shop->shop_name = $domain->toNative();
             $shop->shop_password = $token->isNull() ? '' : $token->toNative();
             $shop->shop_email = "shop@{$domain->toNative()}";
+            $shop->first_time_installation_from_software = 1;
             $shop->save();
             session()->forget('shop');
         }
@@ -75,7 +76,7 @@ class Shop implements ShopCommand
             $shop->shop_password = $token->isNull() ? '' : $token->toNative();
             $shop->shop_email = "shop@{$domain->toNative()}";
             $shop->save();
-            session( [ 'coming_from_shopify'=>$shop->id ] );
+            session( [ 'coming_from_shopify' => $shop->id ] );
         }
         return $shop->getId();
     }
