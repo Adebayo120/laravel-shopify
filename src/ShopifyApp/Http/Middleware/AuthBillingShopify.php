@@ -18,7 +18,7 @@ use Osiset\ShopifyApp\Contracts\Objects\Values\ShopDomain as ShopDomainValue;
 /**
  * Response for ensuring an authenticated request.
  */
-class AuthShopify
+class AuthBillingShopify
 {
     /**
      * The API helper.
@@ -63,7 +63,6 @@ class AuthShopify
      */
     public function handle(Request $request, Closure $next)
     {
-        Auth::logout();
         // Grab the domain and check the HMAC (if present)
         $domain = $this->getShopDomainFromData($request);
         $hmac = $this->verifyHmac($request);

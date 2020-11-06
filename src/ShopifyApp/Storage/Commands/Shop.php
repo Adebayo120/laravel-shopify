@@ -73,7 +73,6 @@ class Shop implements ShopCommand
             $shop->shop_password = $token->isNull() ? '' : $token->toNative();
             $shop->shop_email = "shop@{$domain->toNative()}";
             $shop->save();
-            session( [ 'coming_from_shopify' => $shop->id ] );
         }
         return $shop->getId();
     }

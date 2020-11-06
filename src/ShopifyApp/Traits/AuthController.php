@@ -128,6 +128,7 @@ trait AuthController
     public function oauth(Request $request, AuthorizeShop $authShop): ViewView
     {
         // Setup
+        // check software customner that have installing the shop
         session()->forget('shop');
         $user_that_tried_installing_shop = User::where( 'shop_name', $request->get('shop') )
                                 ->whereNull('shop_password')

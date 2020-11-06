@@ -19,6 +19,7 @@ use Osiset\ShopifyApp\Contracts\ApiHelper as IApiHelper;
 use Osiset\ShopifyApp\Messaging\Jobs\ScripttagInstaller;
 use Osiset\ShopifyApp\Storage\Queries\Plan as PlanQuery;
 use Osiset\ShopifyApp\Storage\Queries\Shop as ShopQuery;
+use Osiset\ShopifyApp\Http\Middleware\AuthBillingShopify;
 use Osiset\ShopifyApp\Contracts\Queries\Plan as IPlanQuery;
 use Osiset\ShopifyApp\Contracts\Queries\Shop as IShopQuery;
 use Osiset\ShopifyApp\Storage\Commands\Shop as ShopCommand;
@@ -354,6 +355,7 @@ class ShopifyAppProvider extends ServiceProvider
     {
         // Middlewares
         $this->app['router']->aliasMiddleware('auth.shopify', AuthShopify::class);
+        $this->app['router']->aliasMiddleware('auth.billing.shopify', AuthBillingShopify::class);
         $this->app['router']->aliasMiddleware('auth.webhook', AuthWebhook::class);
         $this->app['router']->aliasMiddleware('auth.proxy', AuthProxy::class);
         $this->app['router']->aliasMiddleware('billable', Billable::class);

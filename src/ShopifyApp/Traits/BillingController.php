@@ -143,5 +143,7 @@ trait BillingController
         }
         $user->exhaust_sms_credit= 0;
         $user->save();
+        session()->forget('data');
+        session()->forget('user');
     }
 }

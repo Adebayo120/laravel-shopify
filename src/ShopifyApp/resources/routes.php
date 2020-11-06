@@ -85,7 +85,7 @@ Route::group(['prefix' => config('shopify-app.prefix'), 'middleware' => ['web']]
         '/billing/{plan?}',
         'Osiset\ShopifyApp\Http\Controllers\BillingController@index'
     )
-    ->middleware(['auth.shopify'])
+    ->middleware(['auth.billing.shopify'])
     ->where('plan', '^([0-9]+|)$')
     ->name('billing');
 
@@ -102,7 +102,7 @@ Route::group(['prefix' => config('shopify-app.prefix'), 'middleware' => ['web']]
         '/billing/process/{plan?}',
         'Osiset\ShopifyApp\Http\Controllers\BillingController@process'
     )
-    ->middleware(['auth.shopify'])
+    ->middleware(['auth.billing.shopify'])
     ->where('plan', '^([0-9]+|)$')
     ->name('billing.process');
 
@@ -120,7 +120,7 @@ Route::group(['prefix' => config('shopify-app.prefix'), 'middleware' => ['web']]
         '/billing/usage-charge',
         'Osiset\ShopifyApp\Http\Controllers\BillingController@usageCharge'
     )
-    ->middleware(['auth.shopify'])
+    ->middleware(['auth.billing.shopify'])
     ->name('billing.usage_charge');
 });
 
