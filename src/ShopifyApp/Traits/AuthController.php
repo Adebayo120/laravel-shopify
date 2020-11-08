@@ -57,7 +57,7 @@ trait AuthController
             $shop_on_software = ShopifyShop::withTrashed()->where('name', $request->get('shop'))->first();
             if( $shop_on_software )
             {
-                if( $shop_on_software->user_id != session('shop') )
+                if( $shop_on_software->user_id != $request->get( 'shop_user' ) )
                 {
                     return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
                 }
