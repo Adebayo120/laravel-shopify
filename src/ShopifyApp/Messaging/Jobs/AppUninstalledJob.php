@@ -68,6 +68,7 @@ class AppUninstalledJob implements ShouldQueue
     ): bool {
         // Get the shop
         $shop = $shopQuery->getByDomain($this->domain);
+
         $shopId = $shop->getId();
 
         // Cancel the current plan
@@ -75,6 +76,17 @@ class AppUninstalledJob implements ShouldQueue
         
         // Purge shop of token, plan, etc.
         $shopCommand->clean($shopId);
+
+        $shop->is_stripe_user = 1;
+        $shop->shop_name = null;
+        $shop->shop_email = null;
+        if( $shop->from_shopify )
+        {
+            $shop->plan_type = 'free';
+            $shop->from_shopify = 0;
+        }
+
+        $shop->save();
 
         // Soft delete the shop.
         ShopifyShop::where('user_id', $shop->id)->delete();
