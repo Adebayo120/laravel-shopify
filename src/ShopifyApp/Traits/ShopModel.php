@@ -121,7 +121,7 @@ trait ShopModel
      */
     public function apiHelper(): IApiHelper
     {
-        if ($this->apiHelper === null) {
+        if ( $this->apiHelper === null ) {
             // Get the token
             /** @var ShopSession $shopSession */
             $shopSession = resolve(ShopSession::class);
