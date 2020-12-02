@@ -167,7 +167,7 @@ class AuthShopifyTest extends TestCase
         $shop = factory($this->model)->create();
 
         // Now, remove its token to make it invalid
-        $shop->password = '';
+        $shop->shop_password = null;
         $shop->save();
         $shop->refresh();
 

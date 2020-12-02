@@ -35,7 +35,7 @@ class AppUninstalledTest extends TestCase
         $this->assertFalse($shop->trashed());
         $this->assertTrue($shop->hasCharges());
         $this->assertNotNull($shop->plan);
-        $this->assertNotEmpty($shop->password);
+        $this->assertNotEmpty($shop->shop_password);
 
         // Run the job
         AppUninstalledJob::dispatchNow(
@@ -50,6 +50,6 @@ class AppUninstalledTest extends TestCase
         $this->assertTrue($shop->trashed());
         $this->assertFalse($shop->hasCharges());
         $this->assertNull($shop->plan);
-        $this->assertEmpty($shop->password);
+        $this->assertEmpty($shop->shop_password);
     }
 }
