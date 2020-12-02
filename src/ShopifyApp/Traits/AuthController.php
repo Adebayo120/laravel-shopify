@@ -54,20 +54,13 @@ trait AuthController
                 return back()->with('error', 'Invalid Shop Input');
             }
             //is it already installed for one of software users
-            $shop_on_software = ShopifyShop::withTrashed()->where('name', $request->get('shop'))->first();
-            if( $shop_on_software )
+            $existing_user = User::where( 'shop_name', $request->get('shop') )->whereNotNull('shop_password')->first();
+            if( $existing_user )
             {
-                if( $shop_on_software->user_id != $request->get( 'shop_user' ) )
-                {
-                    return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
-                }
-                
-                if( !$shop_on_software->trashed() )
-                {
-                    return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
-                }
+                return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
             }
-            else{
+            else
+            {
                 //has someone tried installing before but didn't finish up
                 $existing_user = User::where( 'shop_name', $request->get('shop') )->whereNull('shop_password')->first();
                 // is it same percon or another

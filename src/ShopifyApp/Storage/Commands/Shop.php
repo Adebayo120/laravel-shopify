@@ -51,14 +51,6 @@ class Shop implements ShopCommand
     {
         if( session()->has('shop') )
         {
-            $custom_shop_in_app = ShopifyShop::withTrashed()->where('user_id', session('shop'))->first();
-            if($custom_shop_in_app)
-            {
-                if($custom_shop_in_app->trashed())
-                {
-                    $custom_shop_in_app->restore();
-                }
-            }
             $shop = User::find(session('shop'));
             $shop->shop_name = $domain->toNative();
             $shop->shop_password = $token->isNull() ? '' : $token->toNative();
