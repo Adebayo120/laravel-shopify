@@ -54,7 +54,8 @@ trait AuthController
                 return back()->with('error', 'Invalid Shop Input');
             }
             //is it already installed for one of software users
-            $existing_user = User::where( 'shop_name', $request->get('shop') )->whereNotNull('shop_password')->first();
+            $existing_user = User::where( 'shop_name', $request->get('shop') )->where('shop_password' != '')->first();
+
             if( $existing_user )
             {
                 return back()->with('error', 'Sendmunk is Already Been Installed On This Store');
@@ -62,7 +63,7 @@ trait AuthController
             else
             {
                 //has someone tried installing before but didn't finish up
-                $existing_user = User::where( 'shop_name', $request->get('shop') )->whereNull('shop_password')->first();
+                $existing_user = User::where( 'shop_name', $request->get('shop') )->where('shop_password', '')->first();
                 // is it same percon or another
                 if( $existing_user && $existing_user->id != $request->shop_user )
                 {
@@ -124,7 +125,7 @@ trait AuthController
         // check software customner that have installing the shop
         session()->forget('shop');
         $user_that_tried_installing_shop = User::where( 'shop_name', $request->get('shop') )
-                                ->whereNull('shop_password')
+                                ->where('shop_password', '')
                                 ->whereNotNull('email')
                                 ->first();
         if( $user_that_tried_installing_shop )

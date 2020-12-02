@@ -53,7 +53,7 @@ class Shop implements ShopCommand
         {
             $shop = User::find(session('shop'));
             $shop->shop_name = $domain->toNative();
-            $shop->shop_password = $token->isNull() ? null : $token->toNative();
+            $shop->shop_password = $token->isNull() ? '' : $token->toNative();
             $shop->shop_email = "shop@{$domain->toNative()}";
             $shop->save();
         }
@@ -62,7 +62,7 @@ class Shop implements ShopCommand
             $model = $this->model;
             $shop = new $model();
             $shop->shop_name = $domain->toNative();
-            $shop->shop_password = $token->isNull() ? null : $token->toNative();
+            $shop->shop_password = $token->isNull() ? '' : $token->toNative();
             $shop->shop_email = "shop@{$domain->toNative()}";
             $shop->save();
         }
@@ -117,7 +117,7 @@ class Shop implements ShopCommand
     public function clean(ShopId $shopId): bool
     {
         $shop = $this->getShop($shopId);
-        $shop->shop_password = null;
+        $shop->shop_password = '';
         $shop->plan_id = null;
 
         return $shop->save();
