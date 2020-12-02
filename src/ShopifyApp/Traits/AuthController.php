@@ -54,7 +54,7 @@ trait AuthController
                 return back()->with('error', 'Invalid Shop Input');
             }
             //is it already installed for one of software users
-            $existing_user = User::where( 'shop_name', $request->get('shop') )->where('shop_password' != '')->first();
+            $existing_user = User::where( 'shop_name', $request->get('shop') )->where('shop_password', '!=', '')->first();
 
             if( $existing_user )
             {
