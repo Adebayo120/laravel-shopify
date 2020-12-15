@@ -3,13 +3,13 @@
 namespace Osiset\ShopifyApp\Traits;
 
 use App\User;
-use App\ShopifyShop;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 use Osiset\ShopifyApp\Actions\AuthorizeShop;
 use Illuminate\Contracts\View\View as ViewView;
 use Osiset\ShopifyApp\Actions\AuthenticateShop;
@@ -44,8 +44,17 @@ trait AuthController
      */
     public function authenticate(Request $request, AuthenticateShop $authenticateShop)
     {
+        $store=Validator::make( $request->all(), [
+            "shop" => "required"                
+        ]);
+
+        if ( $store->fails() )
+        {
+            return back()->with( "error", $store->getMessageBag()->first() );
+        }
+
         // Get the shop domain
-        $shopDomain = new ShopDomain($request->get('shop'));
+        $shopDomain = new ShopDomain( $request->get('shop') );
         if( $request->get('shop_user') )
         {
             //is the typed in shop correct
