@@ -29,10 +29,8 @@ trait AuthController
      */
     public function index(Request $request): ViewView
     {
-        return View::make(
-            'shopify-app::auth.index',
-            ['shopDomain' => $request->query('shop')]
-        );
+        
+        return view("shopify.shop_login")->with( [ 'shopDomain' => $request->query('shop') ] );
     }
 
     /**

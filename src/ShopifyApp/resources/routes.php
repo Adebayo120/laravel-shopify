@@ -21,7 +21,7 @@ Route::group(['prefix' => config('shopify-app.prefix'), 'middleware' => ['web']]
     */
 
     Route::get(
-        '/shopify-login',
+        '/shopify-integrate',
         'Osiset\ShopifyApp\Http\Controllers\HomeController@index'
     )
     ->middleware(['auth.shopify', 'billable'])

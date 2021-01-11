@@ -63,10 +63,14 @@ class AuthShopify
      */
     public function handle(Request $request, Closure $next)
     {
-        Auth::logout();
         // Grab the domain and check the HMAC (if present)
         $domain = $this->getShopDomainFromData($request);
         $hmac = $this->verifyHmac($request);
+
+        if ( $hmac )
+        {
+            Auth::logout();
+        }
 
         $checks = [];
         if ($this->shopSession->guest()) {
