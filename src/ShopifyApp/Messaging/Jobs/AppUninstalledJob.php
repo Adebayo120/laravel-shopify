@@ -75,7 +75,7 @@ class AppUninstalledJob implements ShouldQueue
         $cancelCurrentPlanAction($shopId);
         
         // Purge shop of token, plan, etc.
-        $shopCommand->clean($shopId);
+        $shopCommand->clean( $shopId );
 
         $shop->is_stripe_user = 1;
         $shop->shop_name = null;

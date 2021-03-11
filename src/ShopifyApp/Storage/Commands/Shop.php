@@ -87,10 +87,10 @@ class Shop implements ShopCommand
      */
     public function setAccessToken(ShopId $shopId, AccessTokenValue $token): bool
     {
-        $shop = $this->getShop($shopId);
+        $shop = $this->getShop( $shopId );
         $shop->shop_password = $token->toNative();
         $persisted_shop_seperate_table =  ShopifyShop::withTrashed()->where('email', $shop->shop_email)->first();
-        if($persisted_shop_seperate_table)
+        if( $persisted_shop_seperate_table )
         {
             $persisted_shop_seperate_table->user_id = $shop->id;
             $persisted_shop_seperate_table->deleted_at = null;
@@ -99,6 +99,7 @@ class Shop implements ShopCommand
         }
         else
         {
+            ShopifyShop::where( "user_id", $shop->id )->forceDelete();
             $shop_seperate_table= new ShopifyShop();
             $shop_seperate_table->name = $shop->shop_name;
             $shop_seperate_table->password = $token->toNative();
