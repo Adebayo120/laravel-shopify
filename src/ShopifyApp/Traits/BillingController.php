@@ -6,9 +6,11 @@ use App\SmsCredit;
 use App\SmsCreditHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Osiset\ShopifyApp\Actions\GetPlanUrl;
+use Osiset\ShopifyApp\Storage\Models\Plan;
 use Osiset\ShopifyApp\Actions\ActivatePlan;
 use Osiset\ShopifyApp\Services\ShopSession;
 use Osiset\ShopifyApp\Objects\Values\PlanId;
@@ -67,14 +69,56 @@ trait BillingController
         // Activate the plan and save
         $result = $activatePlan(
             $shopSession->getShop()->getId(),
-            new PlanId($plan),
-            new ChargeReference($request->query('charge_id'))
+            new PlanId( $plan ),
+            new ChargeReference( $request->query( 'charge_id' ) )
         );
+
+        $plan = Plan::find( $plan );
+
+        $message = $plan->name == "sms credit" ? "Sms Credit Bought Successfully" : "Plan Upgraded Successfully";
+
+        if ( $plan->name == "sms credit" &&  $result )
+        {
+            $user = Auth::user();
+            $credit_history= new SmsCreditHistory();
+            $credit_history->credit = $plan->sms_credit_value;
+            $credit_history->amount = $plan->price;
+            $credit_history->user_id = $user->id;
+            $credit_history->save();
+            // Check if user already has credit
+            $availableCredit = SmsCredit::where( 'user_id', '=' ,$user->id )->first();
+            if ($availableCredit) {
+                $availableCredit->static_credit = $plan->sms_credit_value;
+                $availableCredit->decreasable_credit = $availableCredit->decreasable_credit + $plan->sms_credit_value;
+                $availableCredit->static_amount = $availableCredit->decreasable_amount + $plan->price;
+                $availableCredit->decreasable_amount = $availableCredit->decreasable_amount + $plan->price;
+                $availableCredit->save();
+            }else {
+                // User hasn't purchased SMS Credit Before
+                $smsCreditLoad = new SmsCredit();
+                $smsCreditLoad->static_credit = $plan->sms_credit_value;
+                $smsCreditLoad->decreasable_credit = $plan->sms_credit_value;
+                $smsCreditLoad->static_amount = $plan->price;
+                $smsCreditLoad->decreasable_amount = $plan->price;
+                $smsCreditLoad->user_id = $user->id;
+                $smsCreditLoad->save();
+            }
+            $user->exhaust_sms_credit = 0;
+            $user->save();
+        }
+        else if ( !$result )
+        {
+            $message = "There was an error";
+            if ( $plan->name == "sms credit" )
+            {
+                $plan->delete();
+            }
+        }
 
         // Go to homepage of app
         return Redirect::to('settings#/billing')->with(
             $result ? 'status' : 'error',
-            $result ? 'Plan Upgraded Successfully' : ' Oops An Error Occured'
+            $result ? $message : ' Oops An Error Occured'
         );
     }
 
@@ -105,45 +149,9 @@ trait BillingController
             $ucd
         );
 
-        $this->update_software_on_successfull_credit_purchase();
-
         // All done, return with success
         return isset($validated['redirect']) ?
-            Redirect::to($validated['redirect'])->with('status', 'Sms Credit Purchase was Successfully') :
-            Redirect::back()->with('status', 'Sms Credit Purchase was Successfully');
-    }
-
-    public function update_software_on_successfull_credit_purchase ()
-    {
-        $data = session('data');
-        $user = session('user');
-        // store sms credit history
-        $credit_history= new SmsCreditHistory();
-        $credit_history->credit = $data['sms_credit'];
-        $credit_history->amount = $data['sms_credit_amount'];
-        $credit_history->user_id = $user->id;
-        $credit_history->save();
-        // Check if user already has credit
-        $availableCredit = SmsCredit::where( 'user_id', '=' ,$user->id )->first();
-        if ($availableCredit) {
-            $availableCredit->static_credit = $data['sms_credit'];
-            $availableCredit->decreasable_credit = $availableCredit->decreasable_credit + $data['sms_credit'];
-            $availableCredit->static_amount = $availableCredit->decreasable_amount + $data['sms_credit_amount'];
-            $availableCredit->decreasable_amount = $availableCredit->decreasable_amount + $data['sms_credit_amount'];
-            $availableCredit->save();
-        }else {
-            // User hasn't purchased SMS Credit Before
-            $smsCreditLoad = new SmsCredit();
-            $smsCreditLoad->static_credit = $data['sms_credit'];
-            $smsCreditLoad->decreasable_credit = $data['sms_credit'];
-            $smsCreditLoad->static_amount = $data['sms_credit_amount'];
-            $smsCreditLoad->decreasable_amount = $data['sms_credit_amount'];
-            $smsCreditLoad->user_id = $user->id;
-            $smsCreditLoad->save();
-        }
-        $user->exhaust_sms_credit= 0;
-        $user->save();
-        session()->forget('data');
-        session()->forget('user');
+            Redirect::to($validated['redirect'])->with('status', 'Usage Plan Bought Successfully') :
+            Redirect::back()->with('status', 'Usage Plan Bought Successfully');
     }
 }
