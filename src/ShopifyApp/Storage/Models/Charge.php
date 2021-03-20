@@ -260,7 +260,7 @@ class Charge extends Model
      */
     public function past_days_for_period(): ?int
     {
-        $pastDaysInPeriod = Carbon::parse($this->periodBeginDate())->diffInDays(Carbon::today());
+        $pastDaysInPeriod = Carbon::parse($this->period_begin_date())->diffInDays(Carbon::today());
 
         return $pastDaysInPeriod;
     }
