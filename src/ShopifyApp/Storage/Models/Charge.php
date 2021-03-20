@@ -3,6 +3,7 @@
 namespace Osiset\ShopifyApp\Storage\Models;
 
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Osiset\ShopifyApp\Objects\Values\ChargeId;
@@ -11,6 +12,7 @@ use Osiset\ShopifyApp\Objects\Enums\ChargeType;
 use Osiset\ShopifyApp\Objects\Enums\ChargeStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Osiset\ShopifyApp\Objects\Values\ChargeReference;
+
 
 /**
  * Responsible for reprecenting a charge record.
@@ -236,5 +238,30 @@ class Charge extends Model
     public function user ()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Return the date when the current period has begun.
+     *
+     * @return string
+     */
+    public function period_begin_date(): string
+    {
+        $pastPeriods = (int) ( Carbon::parse($this->activated_on )->diffInDays( Carbon::today() ) / 30 );
+        $periodBeginDate = Carbon::parse($this->activated_on)->addDays(30 * $pastPeriods)->toDateString();
+
+        return $periodBeginDate;
+    }
+
+    /**
+     * Returns the past days for the current recurring charge.
+     *
+     * @return int|null
+     */
+    public function past_days_for_period(): ?int
+    {
+        $pastDaysInPeriod = Carbon::parse($this->periodBeginDate())->diffInDays(Carbon::today());
+
+        return $pastDaysInPeriod;
     }
 }

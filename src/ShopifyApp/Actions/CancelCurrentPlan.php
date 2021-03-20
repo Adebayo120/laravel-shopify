@@ -59,17 +59,17 @@ class CancelCurrentPlan
     public function __invoke(ShopId $shopId): bool
     {
         // Get the shop and its plan
-        $shop = $this->shopQuery->getById($shopId);
+        $shop = $this->shopQuery->getById( $shopId );
         $plan = $shop->plan;
 
-        if (!$plan) {
+        if ( !$plan ) {
             // Shop has no plan...
             return false;
         }
 
         // Cancel the last charge
-        $planCharge = $this->chargeHelper->chargeForPlan($shop->plan->getId(), $shop);
-        if ($planCharge && !$planCharge->isDeclined() && !$planCharge->isCancelled()) {
+        $planCharge = $this->chargeHelper->chargeForPlan( $shop->plan->getId(), $shop );
+        if ( $planCharge && !$planCharge->isDeclined() && !$planCharge->isCancelled() ) {
             $this->chargeCommand->cancel($planCharge->getReference());
 
             // Charge has been cancelled

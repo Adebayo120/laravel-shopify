@@ -108,17 +108,22 @@ class ActivatePlan
         $shop = $this->shopQuery->getById($shopId);
 
         // Get the plan
-        $plan = $this->planQuery->getById($planId);
+        $plan = $this->planQuery->getById( $planId );
+
         $chargeType = ChargeType::fromNative($plan->getType()->toNative());
 
         // Activate the plan on Shopify
         $response = $shop->apiHelper()->activateCharge($chargeType, $chargeRef);
 
-        // Cancel the shop's current plan
-        call_user_func($this->cancelCurrentPlan, $shopId);
+        if ( $plan->type != "ONETIME" ) 
+        {
+            // Cancel the shop's current plan
+            call_user_func( $this->cancelCurrentPlan, $shopId );
 
-        // Cancel the existing charge if it exists (happens if someone refreshes during)
-        $this->chargeCommand->delete($chargeRef, $shopId);
+            // Cancel the existing charge if it exists (happens if someone refreshes during)
+            $this->chargeCommand->delete($chargeRef, $shopId);
+        }
+
 
         // Create the charge transfer
         $isRecurring = $plan->isType(PlanType::RECURRING());
@@ -135,7 +140,11 @@ class ActivatePlan
 
         // Create the charge
         $charge = $this->chargeCommand->make($transfer);
-        $this->shopCommand->setToPlan($shopId, $planId);
+
+        if ( $plan->type != "ONETIME" ) 
+        {
+            $this->shopCommand->setToPlan($shopId, $planId);
+        }
 
         return $charge;
     }
