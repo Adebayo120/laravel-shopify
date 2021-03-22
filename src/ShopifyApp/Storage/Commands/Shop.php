@@ -99,7 +99,12 @@ class Shop implements ShopCommand
         }
         else
         {
-            ShopifyShop::where( "user_id", $shop->id )->forceDelete();
+            $shopifyShop = ShopifyShop::where( "user_id", $shop->id );
+            $subaccount = $shopifyShop->subaccount;
+            $subaccount->orders_count = 0;
+            $subaccount->save();
+            $shopifyShop->forceDelete();
+
             $shop_seperate_table= new ShopifyShop();
             $shop_seperate_table->name = $shop->shop_name;
             $shop_seperate_table->password = $token->toNative();
