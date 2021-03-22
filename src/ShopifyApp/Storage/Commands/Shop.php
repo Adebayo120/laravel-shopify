@@ -100,7 +100,7 @@ class Shop implements ShopCommand
         else
         {
             $shopifyShop = ShopifyShop::where( "user_id", $shop->id );
-            $subaccount = $shopifyShop->subaccount;
+            $subaccount = $shopifyShop->first()->subaccount;
             $subaccount->orders_count = 0;
             $subaccount->save();
             $shopifyShop->forceDelete();
