@@ -4,7 +4,6 @@ namespace Osiset\ShopifyApp\Storage\Commands;
 
 use App\User;
 use App\ShopifyShop;
-use App\Traits\ShopsTrait;
 use Illuminate\Support\Facades\DB;
 use Osiset\ShopifyApp\Contracts\ShopModel;
 use Osiset\ShopifyApp\Objects\Values\ShopId;
@@ -21,7 +20,7 @@ use Osiset\ShopifyApp\Storage\Models\Plan;
  */
 class Shop implements ShopCommand
 {
-    use ConfigAccessible, ShopsTrait;
+    use ConfigAccessible;
 
     /**
      * The shop model (configurable).
@@ -149,6 +148,39 @@ class Shop implements ShopCommand
         DB::table("campaigns")->whereIn("sub_account_id", $subaccounts_ids )->update( [ "shopify_revenue_value" => "0.00" ] );
         DB::table( "sms_campaigns" )->whereIn( "sub_account_id", $subaccounts_ids )->update( [ "shopify_revenue_value" => "0.00" ] );
         DB::table( "push_messages" )->where( "user_id", $user->id )->update( [ "shopify_revenue_value" => "0.00" ] );
+    }
+
+    /**
+     * default_relations_revenue_array
+     *
+     * @return void
+     */
+    public function default_relations_revenue_array ()
+    {
+        return [
+            "automation" => [
+                "shopify_revenue_value" => [ "total" => "0.00" ],
+                "bc_revenue_value" => [ "total" => "0.00" ]
+            ],
+            "bot" => [
+                "shopify_revenue_value" => [ "total" => "0.00" ],
+                "bc_revenue_value" => [ "total" => "0.00" ]
+            ],
+            "campaign" => [
+                "shopify_revenue_value" => [ "total" => "0.00" ],
+                "bc_revenue_value" => [ "total" => "0.00" ]
+            ],
+            "smscampaign" => [
+                "shopify_revenue_value" => [ "total" => "0.00" ],
+                "bc_revenue_value" => [ "total" => "0.00" ]
+            ],
+            "push_message" => [
+                "shopify_revenue_value" => [ "total" => "0.00" ],
+                "bc_revenue_value" => [ "total" => "0.00" ]
+            ],
+            "shopify_revenue_value" => [ "total" => "0.00" ],
+            "bc_revenue_value" => [ "total" => "0.00" ]
+        ];
     }
 
     /**
