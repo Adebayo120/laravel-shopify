@@ -102,15 +102,14 @@ class Shop implements ShopCommand
             {
                 $this->delete_shop_with_relations ( $user_owned_shopify_shop_first, $user_owned_shopify_shop, $shop );
             }
-
-            $shop_seperate_table= new ShopifyShop();
-            $shop_seperate_table->name = $shop->shop_name;
-            $shop_seperate_table->password = $token->toNative();
-            $shop_seperate_table->email = $shop->shop_email;
-            $shop_seperate_table->user_id = $shop->id;
-            $shop_seperate_table->persisted = 0;
-            $shop_seperate_table->save();
         }
+        $shop_seperate_table= new ShopifyShop();
+        $shop_seperate_table->name = $shop->shop_name;
+        $shop_seperate_table->password = $token->toNative();
+        $shop_seperate_table->email = $shop->shop_email;
+        $shop_seperate_table->user_id = $shop->id;
+        $shop_seperate_table->persisted = 0;
+        $shop_seperate_table->save();
 
         return $shop->save(); 
     }
