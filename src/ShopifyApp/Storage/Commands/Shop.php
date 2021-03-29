@@ -93,48 +93,72 @@ class Shop implements ShopCommand
         $persisted_shop_seperate_table =  ShopifyShop::withTrashed()->where( 'email', $shop->shop_email );
         if( $persisted_shop_seperate_table_first = $persisted_shop_seperate_table->first() )
         {
-            $this->delete_shop_with_relations ( $persisted_shop_seperate_table_first, $persisted_shop_seperate_table, $shop);
+            $this->delete_shop_relations ( $persisted_shop_seperate_table_first );
+
+            $persisted_shop_seperate_table->user_id = $shop->id;
+            $persisted_shop_seperate_table->deleted_at = null;
+            $persisted_shop_seperate_table->password = $token->toNative();
+            $persisted_shop_seperate_table->persisted = 0;
+            $persisted_shop_seperate_table->save();
         }
         else
         {
-            $user_owned_shopify_shop = ShopifyShop::where( "user_id", $shop->id );
-            if (  $user_owned_shopify_shop_first = $user_owned_shopify_shop ->first() )
+            $user_owned_shopify_shop = ShopifyShop::withTrashed()->where( "user_id", $shop->id );
+
+            if (  $user_owned_shopify_shop_first = $user_owned_shopify_shop->first() )
             {
-                $this->delete_shop_with_relations ( $user_owned_shopify_shop_first, $user_owned_shopify_shop, $shop );
+                $this->delete_shop_relations ( $user_owned_shopify_shop_first );
+
+                $user_owned_shopify_shop->forceDelete();
             }
+
+            $shop_seperate_table= new ShopifyShop();
+            $shop_seperate_table->name = $shop->shop_name;
+            $shop_seperate_table->password = $token->toNative();
+            $shop_seperate_table->email = $shop->shop_email;
+            $shop_seperate_table->user_id = $shop->id;
+            $shop_seperate_table->persisted = 0;
+            $shop_seperate_table->save();
+
         }
-        $shop_seperate_table= new ShopifyShop();
-        $shop_seperate_table->name = $shop->shop_name;
-        $shop_seperate_table->password = $token->toNative();
-        $shop_seperate_table->email = $shop->shop_email;
-        $shop_seperate_table->user_id = $shop->id;
-        $shop_seperate_table->persisted = 0;
-        $shop_seperate_table->save();
 
         return $shop->save(); 
     }
 
+    public function setToPlan(ShopId $shopId, PlanIdValue $planId): bool
+    {
+        $shop = $this->getShop($shopId);
+        $shop->plan_id = $planId->toNative();
+        $shop->shopify_freemium = false;
+        $shop->plan_type = Plan::find( $planId->toNative() )->name;
+
+        return $shop->save();
+    }
+
     /**
-     * delete_shop_with_relations
+     * delete_shop_relations
      *
-     * @param [type] $shopify_shop
+     * @param [type] $shopify_shop_first
      * @return void
      */
-    public function delete_shop_with_relations ( $shopify_shop_first, $shopify_shop, $user )
+    public function delete_shop_relations ( $shopify_shop_first )
     {
-        $subaccounts_ids = $user->subAccounts->pluck("id")->toArray();
-
         $subaccount = $shopify_shop_first->subaccount;
+
+        $user = $subaccount->user;
+
+        $subaccounts_ids = $user->subAccounts->pluck("id")->toArray();
+        
         $subaccount->orders_count = 0;
+
         $subaccount->relations_revenue_array = $this->default_relations_revenue_array();
+
         $subaccount->save();
 
         // DELETE RELATED TABLES
         DB::table("customers")->where( "customerable_id", $shopify_shop_first->id )->where( "customerable_type", "App\ShopifyShop" )->delete();
         DB::table("products")->where( "productable_id", $shopify_shop_first->id )->where( "productable_type", "App\ShopifyShop" )->delete();
         DB::table( "orders" )->where( "orderable_id", $shopify_shop_first->id )->where( "orderable_type", "App\ShopifyShop" )->delete();
-
-        $shopify_shop->forceDelete();
 
         DB::table("contacts")->whereIn("sub_account_id", $subaccounts_ids )
                             ->update( [ 
