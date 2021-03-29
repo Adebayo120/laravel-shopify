@@ -125,16 +125,6 @@ class Shop implements ShopCommand
         return $shop->save(); 
     }
 
-    public function setToPlan(ShopId $shopId, PlanIdValue $planId): bool
-    {
-        $shop = $this->getShop($shopId);
-        $shop->plan_id = $planId->toNative();
-        $shop->shopify_freemium = false;
-        $shop->plan_type = Plan::find( $planId->toNative() )->name;
-
-        return $shop->save();
-    }
-
     /**
      * delete_shop_relations
      *
