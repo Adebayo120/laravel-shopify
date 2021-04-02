@@ -90,10 +90,10 @@ class Shop implements ShopCommand
     {
         $shop = $this->getShop( $shopId );
         $shop->shop_password = $token->toNative();
-        $persisted_shop_seperate_table =  ShopifyShop::withTrashed()->where( 'email', $shop->shop_email );
-        if( $persisted_shop_seperate_table_first = $persisted_shop_seperate_table->first() )
+        $persisted_shop_seperate_table =  ShopifyShop::withTrashed()->where( 'email', $shop->shop_email )->first();
+        if( $persisted_shop_seperate_table )
         {
-            $this->delete_shop_relations ( $persisted_shop_seperate_table_first );
+            $this->delete_shop_relations ( $persisted_shop_seperate_table );
 
             $persisted_shop_seperate_table->user_id = $shop->id;
             $persisted_shop_seperate_table->deleted_at = null;
