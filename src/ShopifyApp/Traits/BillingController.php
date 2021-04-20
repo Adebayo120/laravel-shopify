@@ -77,7 +77,15 @@ trait BillingController
 
         $message = $plan->name == "sms credit" ? "Sms Credit Bought Successfully" : "Plan Upgraded Successfully";
 
-        if ( $plan->name == "sms credit" &&  $result )
+        if ( !$result )
+        {
+            $message = "There was an error";
+            if ( $plan->name == "sms credit" )
+            {
+                $plan->delete();
+            }
+        }
+        elseif ( $plan->name == "sms credit" )
         {
             $user = Auth::user();
             $credit_history= new SmsCreditHistory();
@@ -105,14 +113,6 @@ trait BillingController
             }
             $user->exhaust_sms_credit = 0;
             $user->save();
-        }
-        else if ( !$result )
-        {
-            $message = "There was an error";
-            if ( $plan->name == "sms credit" )
-            {
-                $plan->delete();
-            }
         }
 
         // Go to homepage of app

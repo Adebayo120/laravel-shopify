@@ -13,6 +13,7 @@ use Osiset\ShopifyApp\Actions\CancelCurrentPlan;
 use Osiset\ShopifyApp\Contracts\Objects\Values\ShopDomain;
 use Osiset\ShopifyApp\Contracts\Queries\Shop as IShopQuery;
 use Osiset\ShopifyApp\Contracts\Commands\Shop as IShopCommand;
+use App\Jobs\Account\Downgrade\DowngradeAccountToFreePlanJob;
 
 /**
  * Webhook job responsible for handling when the app is uninstalled.
@@ -87,6 +88,8 @@ class AppUninstalledJob implements ShouldQueue
         }
 
         $shop->save();
+
+        DowngradeAccountToFreePlanJob::dispatch( $shop->id )->onQueue( "account_upgrades_and_downgrades" );
 
         // Soft delete the shop.
         ShopifyShop::where('user_id', $shop->id)->delete();

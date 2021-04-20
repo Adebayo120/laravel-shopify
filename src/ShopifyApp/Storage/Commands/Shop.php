@@ -75,10 +75,13 @@ class Shop implements ShopCommand
      */
     public function setToPlan(ShopId $shopId, PlanIdValue $planId): bool
     {
+        $plan = Plan::find( $planId->toNative() );
         $shop = $this->getShop($shopId);
         $shop->plan_id = $planId->toNative();
         $shop->shopify_freemium = false;
-        $shop->plan_type = Plan::find( $planId->toNative() )->name;
+        $shop->plan_type = $plan->name;
+        $shop->current_billing_period_end = now()->addDays(30);
+        $shop->decreasable_pushes = $plan->push_notification_maximum_number_of_contact;
 
         return $shop->save();
     }
