@@ -3,6 +3,7 @@
 namespace Osiset\ShopifyApp\Storage\Commands;
 
 use App\User;
+use App\SmsCredit;
 use App\ShopifyShop;
 use Illuminate\Support\Facades\DB;
 use Osiset\ShopifyApp\Contracts\ShopModel;
@@ -82,6 +83,27 @@ class Shop implements ShopCommand
         $shop->plan_type = $plan->name;
         $shop->current_billing_period_end = now()->addDays(30);
         $shop->decreasable_pushes = $plan->push_notification_maximum_number_of_contact;
+        if ( $plan->name == "pro" )
+        {
+            if ( $shop->plan_type == "pro" )
+            {
+                $sms_credit = $shop->smsCredit ? $shop->smsCredit : new SmsCredit();
+                $half_of_price = $plan->price/2;
+                $sms_credit->promo_decreasable_amount = $half_of_price;
+                $sms_credit->promo_static_amount = $half_of_price;
+                $sms_credit->shop_id = $shop->id;
+                $sms_credit->save();
+            }
+            else
+            {
+                if ( $sms_credit = $shop->smsCredit )
+                {
+                    $sms_credit->promo_decreasable_amount = "0.00";
+                    $sms_credit->promo_static_amount = "0.00";
+                    $sms_credit->save();
+                }
+            }
+        }
 
         return $shop->save();
     }
