@@ -104,8 +104,27 @@ class Shop implements ShopCommand
                 }
             }
         }
-
+        
+        $this->check_if_user_was_referred_by_an_affiliate ( $shop, $plan->price );
+        
         return $shop->save();
+    }
+
+    /**
+     * check_if_user_was_referred_by_an_affiliate
+     *
+     * @param Object $user
+     * @param int|string $charges
+     * @return void
+     */
+    public function check_if_user_was_referred_by_an_affiliate ( $user, $charges )
+    {
+        if( $referral = $user->referral )
+        {
+            $referral->charges = $charges;
+            $referral->profit = 0.3 * $charges;
+            $referral->save();
+        }
     }
 
     /**
