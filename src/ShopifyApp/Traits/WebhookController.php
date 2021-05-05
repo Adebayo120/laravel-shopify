@@ -2,6 +2,7 @@
 
 namespace Osiset\ShopifyApp\Traits;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Osiset\ShopifyApp\Objects\Values\ShopDomain;
@@ -24,20 +25,22 @@ trait WebhookController
      */
     public function handle(string $type, Request $request): ResponseResponse
     {
-
-        // Get the job class and dispatch
-        $jobClass = $this->getConfig('job_namespace').str_replace('-', '', ucwords($type, '-')).'Job';
-        $jobData = json_decode($request->getContent());
-        if( $type == 'carts-update' || $type == 'carts-create' || $type == 'checkouts-create' || $type == 'checkouts-update' )
+        if ( $type == "carts-update" || $type == "carts-create" )
         {
+            // Get the job class and dispatch
+            $jobClass = $this->getConfig('job_namespace').str_replace('-', '', ucwords($type, '-')).'Job';
+            $jobData = json_decode($request->getContent());
             $jobClass::dispatch(
                 new ShopDomain($request->header('x-shopify-shop-domain')),
-                $jobData,
-                $_SERVER['REMOTE_ADDR']
-            )->onQueue('shopify');
+                $jobData
+            )->onQueue('shopify')
+            ->delay( Carbon::now()->addSeconds(2) );
         }
         else
         {
+            // Get the job class and dispatch
+            $jobClass = $this->getConfig('job_namespace').str_replace('-', '', ucwords($type, '-')).'Job';
+            $jobData = json_decode($request->getContent());
             $jobClass::dispatch(
                 new ShopDomain($request->header('x-shopify-shop-domain')),
                 $jobData
