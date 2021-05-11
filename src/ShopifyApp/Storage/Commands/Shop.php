@@ -191,6 +191,7 @@ class Shop implements ShopCommand
 
         // DELETE RELATED TABLES
         DB::table("customers")->where( "customerable_id", $shopify_shop_first->id )->where( "customerable_type", "App\ShopifyShop" )->delete();
+        DB::table("images")->where( "imageable_id", $shopify_shop_first->id )->where( "imageable_type", "App\ShopifyShop" )->delete();
         DB::table("products")->where( "productable_id", $shopify_shop_first->id )->where( "productable_type", "App\ShopifyShop" )->delete();
         DB::table( "orders" )->where( "orderable_id", $shopify_shop_first->id )->where( "orderable_type", "App\ShopifyShop" )->delete();
 
