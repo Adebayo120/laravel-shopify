@@ -178,6 +178,10 @@ class Shop implements ShopCommand
     public function delete_shop_relations ( $shopify_shop_first )
     {
         $subaccount = $shopify_shop_first->subaccount;
+        if ( !$subaccount )
+        {
+            return;
+        }
 
         $user = $subaccount->user;
 
