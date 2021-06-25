@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Osiset\ShopifyApp\Actions\AuthorizeShop;
+use App\Constants\Models\User\OnboardingTask;
 use Illuminate\Contracts\View\View as ViewView;
 use Osiset\ShopifyApp\Actions\AuthenticateShop;
 use Osiset\ShopifyApp\Objects\Values\ShopDomain;
@@ -29,7 +30,6 @@ trait AuthController
      */
     public function index(Request $request): ViewView
     {
-        
         return view("shopify.shop_login")->with( [ 'shopDomain' => $request->query('shop') ] );
     }
 
@@ -103,6 +103,8 @@ trait AuthController
             // Everything's good... determine if we need to redirect back somewhere
             if(  session()->has('shop') )
             {
+                $user = User::where( 'shop_name', $request->get('shop') )->first();
+                $user->complete_onboarding_task( OnboardingTask::CONNECT_STORE );
                 session()->flash( 'status', $request->get('shop').' was Successfully Integrated Into Your Account' );
                 session( [ 'return_to' => url('integration') ] );
                 session()->forget('shop');
