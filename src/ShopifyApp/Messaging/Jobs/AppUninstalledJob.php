@@ -71,25 +71,28 @@ class AppUninstalledJob implements ShouldQueue
         $shop = $shopQuery->getByDomain($this->domain);
 
         $shopId = $shop->getId();
-
+        
         // Cancel the current plan
         $cancelCurrentPlanAction($shopId);
         
         // Purge shop of token, plan, etc.
         $shopCommand->clean( $shopId );
 
+
+        
         $shop->is_stripe_user = 1;
         $shop->shop_name = null;
         $shop->shop_email = null;
         if( $shop->from_shopify )
         {
+            DowngradeAccountToFreePlanJob::dispatch( $shop->id )->onQueue( "account_upgrades_and_downgrades" );
+            
             $shop->plan_type = 'free';
             $shop->from_shopify = 0;
         }
 
         $shop->save();
 
-        DowngradeAccountToFreePlanJob::dispatch( $shop->id )->onQueue( "account_upgrades_and_downgrades" );
 
         // Soft delete the shop.
         ShopifyShop::where('user_id', $shop->id)->delete();
